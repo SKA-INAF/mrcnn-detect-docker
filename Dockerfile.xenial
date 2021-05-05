@@ -4,9 +4,6 @@ MAINTAINER Simone Riggi "simone.riggi@gmail.com"
 ######################################
 ##   DEFINE CUSTOMIZABLE ARGS/ENVS
 ######################################
-ARG USER_ARG="caesar"
-ENV USER $USER_ARG
-
 ARG JOB_OPTIONS_ARG=""
 ENV JOB_OPTIONS $JOB_OPTIONS_ARG
 
@@ -29,16 +26,6 @@ ARG RCLONE_MOUNT_WAIT_TIME_ARG=10
 ENV RCLONE_MOUNT_WAIT_TIME $RCLONE_MOUNT_WAIT_TIME_ARG
 
 ENV PYTHONPATH_BASE ${PYTHONPATH}
-
-
-##########################################################
-##     CREATE USER
-##########################################################
-
-# - Create user & set permissions
-RUN adduser --disabled-password --gecos "" $USER && \
-    mkdir -p /home/$USER && \
-    chown -R $USER:$USER /home/$USER
 
 
 ######################################
