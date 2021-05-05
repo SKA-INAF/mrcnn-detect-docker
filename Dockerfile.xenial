@@ -1,4 +1,4 @@
-FROM FROM sriggi/mrcnn:latest
+FROM sriggi/mrcnn:latest
 MAINTAINER Simone Riggi "simone.riggi@gmail.com"
 
 ######################################
