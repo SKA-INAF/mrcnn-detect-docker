@@ -1,0 +1,79 @@
+FROM FROM sriggi/mrcnn:latest
+MAINTAINER Simone Riggi "simone.riggi@gmail.com"
+
+######################################
+##   DEFINE CUSTOMIZABLE ARGS/ENVS
+######################################
+ARG USER_ARG="caesar"
+ENV USER $USER_ARG
+
+ARG JOB_OPTIONS_ARG=""
+ENV JOB_OPTIONS $JOB_OPTIONS_ARG
+
+ARG JOB_OUTDIR_ARG=""
+ENV JOB_OUTDIR $JOB_OUTDIR_ARG
+
+ARG MOUNT_RCLONE_VOLUME_ARG=0
+ENV MOUNT_RCLONE_VOLUME $MOUNT_RCLONE_VOLUME_ARG
+
+ARG MOUNT_VOLUME_PATH_ARG="/mnt/storage"
+ENV MOUNT_VOLUME_PATH $MOUNT_VOLUME_PATH_ARG
+
+ARG RCLONE_REMOTE_STORAGE_ARG="neanias-nextcloud"
+ENV RCLONE_REMOTE_STORAGE $RCLONE_REMOTE_STORAGE_ARG
+
+ARG RCLONE_REMOTE_STORAGE_PATH_ARG="."
+ENV RCLONE_REMOTE_STORAGE_PATH $RCLONE_REMOTE_STORAGE_PATH_ARG
+
+ARG RCLONE_MOUNT_WAIT_TIME_ARG=10
+ENV RCLONE_MOUNT_WAIT_TIME $RCLONE_MOUNT_WAIT_TIME_ARG
+
+ENV PYTHONPATH_BASE ${PYTHONPATH}
+
+
+##########################################################
+##     CREATE USER
+##########################################################
+
+# - Create user & set permissions
+RUN adduser --disabled-password --gecos "" $USER && \
+    mkdir -p /home/$USER && \
+    chown -R $USER:$USER /home/$USER
+
+
+######################################
+##     INSTALL RCLONE
+######################################
+# - Install fuse
+RUN apt-get update && apt-get --no-install-recommends install -y fuse
+
+# - Install rclone
+RUN curl https://rclone.org/install.sh | bash
+
+
+######################################
+##     SET VARS
+######################################
+# - Set PATH vars
+ENV PATH $MASKRCNN_DIR/bin:$PATH
+ENV PYTHONPATH $MASKRCNN_DIR/lib/python3.6/site-packages/mrcnn-1.0.0-py3.6.egg:$PYTHONPATH
+
+RUN echo "export PATH=$PATH" >> /home/$USER/.profile
+RUN echo "export PYTHONPATH=$PYTHONPATH" >> /home/$USER/.profile
+
+RUN echo "export PYTHONPATH=${PYTHONPATH_BASE}:$PYTHONPATH" >> /etc/profile.d/setupSoft.sh
+RUN chmod +x /etc/profile.d/setupSoft.sh
+RUN echo "PYTHONPATH_BASE=$PYTHONPATH"
+
+
+######################################
+##     RUN
+######################################
+# - Copy run script
+COPY run_job.sh /home/$USER/run_job.sh
+RUN chmod +x /home/$USER/run_job.sh
+
+# - Run container
+CMD ["sh","-c","/home/$USER/run_job.sh --user=$USER --jobargs=\"$JOB_OPTIONS\" --joboutdir=$JOB_OUTDIR --mount-rclone-volume=$MOUNT_RCLONE_VOLUME --mount-volume-path=$MOUNT_VOLUME_PATH --rclone-remote-storage=$RCLONE_REMOTE_STORAGE --rclone-remote-storage-path=$RCLONE_REMOTE_STORAGE_PATH --rclone-mount-wait=$RCLONE_MOUNT_WAIT_TIME"]
+
+
