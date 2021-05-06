@@ -56,10 +56,10 @@ done
 
 
 # - Check job args
-#if [ "$JOB_ARGS" = "" ]; then
-#	echo "ERROR: Empty JOB_ARGS argument (hint: you must specify image at least)!"
-#	exit 1
-#fi
+if [ "$JOB_ARGS" = "" ]; then
+	echo "ERROR: Empty JOB_ARGS argument (hint: you must specify image at least)!"
+	exit 1
+fi
 
 
 ###############################
@@ -114,8 +114,10 @@ fi
 ###############################
 ##    SET OPTIONS
 ###############################
-#RUN_OPTIONS="--runmode=detect --jobdir=/home/$RUNUSER/mrcnn-job --weights=/opt/Software/MaskR-CNN/install/share/mrcnn_weights.h5 "
-RUN_OPTIONS="--runmode=detect --jobdir=/home/$RUNUSER/mrcnn-job "
+# - Set run options
+WEIGHTS="/opt/Software/MaskR-CNN/install/share/mrcnn_weights.h5"
+RUN_OPTIONS="--runmode=detect --jobdir=/home/$RUNUSER/mrcnn-job --weights=$WEIGHTS "
+#RUN_OPTIONS="--runmode=detect --jobdir=/home/$RUNUSER/mrcnn-job "
 if [ "$JOB_OUTDIR" != "" ]; then
 	RUN_OPTIONS="$RUN_OPTIONS --outdir=$JOB_OUTDIR "
 	if [ "$MOUNT_RCLONE_VOLUME" = "1" ] ; then
@@ -123,7 +125,35 @@ if [ "$JOB_OUTDIR" != "" ]; then
 	fi	
 fi
 
-JOB_OPTIONS="$RUN_OPTIONS $JOB_ARGS " 
+# - Set data options
+CLASS_DICT="{\"sidelobe\":1,\"source\":2,\"galaxy\":3}"
+ZSCALE_CONTRASTS="0.25,0.25,0.25"
+DATA_OPTIONS="--classdict=$CLASS_DICT --no_uint8 --zscale_contrasts=$ZSCALE_CONTRASTS"
+
+# - Set network architecture options
+BACKBONE="resnet101"
+BACKBONE_STRIDES="4,8,16,32,64"
+NN_OPTIONS="--backbone=$BACKBONE --backbone-strides=$BACKBONE_STRIDES"
+
+# - Train options (not needed here)
+#RPN_ANCHOR_SCALES="4,8,16,32,64"
+#MAX_GT_INSTANCES=100
+#RPN_NMS_THRESHOLD=0.7
+#RPN_TRAIN_ANCHORS_PER_IMAGE=256
+#TRAIN_ROIS_PER_IMAGE=256
+#RPN_ANCHOR_RATIOS="0.5,1,2"
+#TRAIN_OPTIONS="--rpn-anchor-scales=$RPN_ANCHOR_SCALES --max-gt-instances=$MAX_GT_INSTANCES --rpn-nms-threshold=$RPN_NMS_THRESHOLD --rpn-train-anchors-per-image=$RPN_TRAIN_ANCHORS_PER_IMAGE --train-rois-per-image=$TRAIN_ROIS_PER_IMAGE --rpn-anchor-ratio=$RPN_ANCHOR_RATIOS"
+
+# - Set loss options
+#RPN_CLASS_LOSS_WEIGHT=1.0
+#RPN_BBOX_LOSS_WEIGHT=0.1
+#MRCNN_CLASS_LOSS_WEIGHT=1.0
+#MRCNN_BBOX_LOSS_WEIGHT=0.1
+#MRCNN_MASK_LOSS_WEIGHT=0.1
+#LOSS_OPTIONS="--rpn-class-loss-weight=$RPN_CLASS_LOSS_WEIGHT --rpn-bbox-loss-weight=$RPN_BBOX_LOSS_WEIGHT --mrcnn-class-loss-weight=$MRCNN_CLASS_LOSS_WEIGHT --mrcnn-bbox-loss-weight=$MRCNN_BBOX_LOSS_WEIGHT --mrcnn-mask-loss-weight=$MRCNN_MASK_LOSS_WEIGHT"
+
+# - Set all options
+JOB_OPTIONS="$RUN_OPTIONS $DATA_OPTIONS $NN_OPTIONS $JOB_ARGS " 
 
 
 ###############################
