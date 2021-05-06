@@ -126,9 +126,10 @@ if [ "$JOB_OUTDIR" != "" ]; then
 fi
 
 # - Set data options
-CLASS_DICT="{\"sidelobe\":1,\"source\":2,\"galaxy\":3}"
+#CLASS_DICT="{\"sidelobe\":1,\"source\":2,\"galaxy\":3}"
 ZSCALE_CONTRASTS="0.25,0.25,0.25"
-DATA_OPTIONS="--classdict=$CLASS_DICT --no-uint8 --zscale-contrasts=$ZSCALE_CONTRASTS"
+#DATA_OPTIONS="--classdict=$CLASS_DICT --no-uint8 --zscale-contrasts=$ZSCALE_CONTRASTS"
+DATA_OPTIONS="--no-uint8 --zscale-contrasts=$ZSCALE_CONTRASTS"
 
 # - Set network architecture options
 BACKBONE="resnet101"
