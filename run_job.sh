@@ -15,6 +15,7 @@ MOUNT_VOLUME_PATH="/mnt/storage"
 RCLONE_REMOTE_STORAGE="neanias-nextcloud"
 RCLONE_REMOTE_STORAGE_PATH="."
 RCLONE_MOUNT_WAIT_TIME=10
+RCLONE_COPY_WAIT_TIME=30
 
 echo "ARGS: $@"
 
@@ -44,6 +45,9 @@ do
     ;;
 		--rclone-mount-wait=*)
     	RCLONE_MOUNT_WAIT_TIME=`echo $item | /bin/sed 's/[-a-zA-Z0-9]*=//'`
+    ;;
+		--rclone-copy-wait=*)
+    	RCLONE_COPY_WAIT_TIME=`echo $item | /bin/sed 's/[-a-zA-Z0-9]*=//'`
     ;;
 
 	*)
@@ -121,7 +125,7 @@ RUN_OPTIONS="--runmode=detect --jobdir=/home/$RUNUSER/mrcnn-job --weights=$WEIGH
 if [ "$JOB_OUTDIR" != "" ]; then
 	RUN_OPTIONS="$RUN_OPTIONS --outdir=$JOB_OUTDIR "
 	if [ "$MOUNT_RCLONE_VOLUME" = "1" ] ; then
-		RUN_OPTIONS="$RUN_OPTIONS --waitcopy --copywaittime=$RCLONE_MOUNT_WAIT_TIME "
+		RUN_OPTIONS="$RUN_OPTIONS --waitcopy --copywaittime=$RCLONE_COPY_WAIT_TIME "
 	fi	
 fi
 
